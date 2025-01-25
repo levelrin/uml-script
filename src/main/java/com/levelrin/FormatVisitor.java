@@ -43,8 +43,13 @@ public final class FormatVisitor extends UmlScriptBaseVisitor<String> {
     @Override
     public String visitSection(final UmlScriptParser.SectionContext context) {
         final UmlScriptParser.MetadataContext metadataContext = context.metadata();
+        final UmlScriptParser.ParticipantsContext participants = context.participants();
         final StringBuilder text = new StringBuilder();
-        text.append(this.visit(metadataContext));
+        if (metadataContext != null) {
+            text.append(this.visit(metadataContext));
+        } else if (participants != null) {
+            text.append(this.visit(participants));
+        }
         return text.toString();
     }
 
@@ -94,11 +99,90 @@ public final class FormatVisitor extends UmlScriptBaseVisitor<String> {
 
     @Override
     public String visitMetadataContent(final UmlScriptParser.MetadataContentContext context) {
+        final UmlScriptParser.TitleContext titleContext = context.title();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(titleContext));
+        return text.toString();
+    }
+
+    @Override
+    public String visitTitle(final UmlScriptParser.TitleContext context) {
         final TerminalNode titleTerminal = context.TITLE();
         final TerminalNode colonTerminal = context.COLON();
         final TerminalNode singleLineString = context.SINGLE_LINE_STRING();
         final StringBuilder text = new StringBuilder();
         text.append(this.visit(titleTerminal));
+        text.append(this.visit(colonTerminal));
+        text.append(" ");
+        text.append(this.visit(singleLineString));
+        return text.toString();
+    }
+
+    @Override
+    public String visitParticipants(final UmlScriptParser.ParticipantsContext context) {
+        final UmlScriptParser.ParticipantsHeaderContext participantsHeaderContext = context.participantsHeader();
+        final UmlScriptParser.ParticipantsContentContext participantsContentContext = context.participantsContent();
+        final UmlScriptParser.ParticipantsFooterContext participantsFooterContext = context.participantsFooter();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(participantsHeaderContext));
+        this.appendNewLinesAndIndent(text, 2);
+        text.append(this.visit(participantsContentContext));
+        this.appendNewLinesAndIndent(text, 2);
+        text.append(this.visit(participantsFooterContext));
+        return text.toString();
+    }
+
+    @Override
+    public String visitParticipantsHeader(final UmlScriptParser.ParticipantsHeaderContext context) {
+        final List<TerminalNode> doubleEqualsTerminals = context.DOUBLE_EQUALS();
+        final TerminalNode participantsTerminal = context.PARTICIPANTS();
+        final StringBuilder text = new StringBuilder();
+        final TerminalNode firstDoubleEqualsTerminal = doubleEqualsTerminals.get(0);
+        text.append(this.visit(firstDoubleEqualsTerminal));
+        text.append(" ");
+        text.append(this.visit(participantsTerminal));
+        text.append(" ");
+        final TerminalNode secondDoubleEqualsTerminal = doubleEqualsTerminals.get(1);
+        text.append(this.visit(secondDoubleEqualsTerminal));
+        return text.toString();
+    }
+
+    @Override
+    public String visitParticipantsFooter(final UmlScriptParser.ParticipantsFooterContext context) {
+        final List<TerminalNode> doubleDashesTerminals = context.DOUBLE_DASHES();
+        final TerminalNode participantsTerminal = context.PARTICIPANTS();
+        final StringBuilder text = new StringBuilder();
+        final TerminalNode firstDoubleDashesTerminal = doubleDashesTerminals.get(0);
+        text.append(this.visit(firstDoubleDashesTerminal));
+        text.append(" ");
+        text.append(this.visit(participantsTerminal));
+        text.append(" ");
+        final TerminalNode secondDoubleDashesTerminal = doubleDashesTerminals.get(1);
+        text.append(this.visit(secondDoubleDashesTerminal));
+        return text.toString();
+    }
+
+    @Override
+    public String visitParticipantsContent(final UmlScriptParser.ParticipantsContentContext context) {
+        final List<UmlScriptParser.ParticipantContext> participantContexts = context.participant();
+        final StringBuilder text = new StringBuilder();
+        for (int index = 0; index < participantContexts.size(); index++) {
+            final UmlScriptParser.ParticipantContext participantContext = participantContexts.get(index);
+            text.append(this.visit(participantContext));
+            if (index < participantContexts.size() - 1) {
+                this.appendNewLinesAndIndent(text, 1);
+            }
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitParticipant(final UmlScriptParser.ParticipantContext context) {
+        final TerminalNode referenceNameTerminal = context.REFERENCE_NAME();
+        final TerminalNode colonTerminal = context.COLON();
+        final TerminalNode singleLineString = context.SINGLE_LINE_STRING();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(referenceNameTerminal));
         text.append(this.visit(colonTerminal));
         text.append(" ");
         text.append(this.visit(singleLineString));

@@ -50,6 +50,11 @@ final class FormatVisitorTest {
     }
 
     @Test
+    void shouldFormatParticipants() {
+        this.compare("format/participants-before.us", "format/participants-after.us");
+    }
+
+    @Test
     void shouldFormatMetadata() {
         this.compare("format/metadata-before.us", "format/metadata-after.us");
     }
