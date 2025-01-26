@@ -164,12 +164,124 @@ public final class FormatVisitor extends UmlScriptBaseVisitor<String> {
 
     @Override
     public String visitParticipantsContent(final UmlScriptParser.ParticipantsContentContext context) {
-        final List<UmlScriptParser.ParticipantContext> participantContexts = context.participant();
+        final List<UmlScriptParser.ParticipantsElementContext> participantsElementContexts = context.participantsElement();
         final StringBuilder text = new StringBuilder();
-        for (int index = 0; index < participantContexts.size(); index++) {
-            final UmlScriptParser.ParticipantContext participantContext = participantContexts.get(index);
+        for (int index = 0; index < participantsElementContexts.size(); index++) {
+            final UmlScriptParser.ParticipantsElementContext participantsElementContext = participantsElementContexts.get(index);
+            text.append(this.visit(participantsElementContext));
+            if (index < participantsElementContexts.size() - 1) {
+                this.appendNewLinesAndIndent(text, 2);
+            }
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitParticipantsElement(final UmlScriptParser.ParticipantsElementContext context) {
+        final UmlScriptParser.ParticipantContext participantContext = context.participant();
+        final UmlScriptParser.BoxContext boxContext = context.box();
+        final StringBuilder text = new StringBuilder();
+        if (participantContext != null) {
             text.append(this.visit(participantContext));
-            if (index < participantContexts.size() - 1) {
+        } else if (boxContext != null) {
+            text.append(this.visit(boxContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitParticipant(final UmlScriptParser.ParticipantContext context) {
+        final TerminalNode atTerminal = context.AT();
+        final TerminalNode referenceNameTerminal = context.REFERENCE_NAME();
+        final UmlScriptParser.ParticipantPartAfterTypeContext participantPartAfterTypeContext = context.participantPartAfterType();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(atTerminal));
+        text.append(this.visit(referenceNameTerminal));
+        if (participantPartAfterTypeContext != null) {
+            text.append(" ");
+            text.append(this.visit(participantPartAfterTypeContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitParticipantPartAfterType(final UmlScriptParser.ParticipantPartAfterTypeContext context) {
+        final TerminalNode referenceNameTerminal = context.REFERENCE_NAME();
+        final UmlScriptParser.ParticipantPartAfterReferenceNameContext participantPartAfterReferenceNameContext = context.participantPartAfterReferenceName();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(referenceNameTerminal));
+        if (participantPartAfterReferenceNameContext != null) {
+            text.append(" ");
+            text.append(this.visit(participantPartAfterReferenceNameContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitParticipantPartAfterReferenceName(final UmlScriptParser.ParticipantPartAfterReferenceNameContext context) {
+        final TerminalNode singleLineStringTerminal = context.SINGLE_LINE_STRING();
+        final UmlScriptParser.MapContext mapContext = context.map();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(singleLineStringTerminal));
+        if (mapContext != null) {
+            text.append(" ");
+            text.append(this.visit(mapContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitBox(final UmlScriptParser.BoxContext context) {
+        final TerminalNode singleLineStringTerminal = context.SINGLE_LINE_STRING();
+        final TerminalNode openingBracketTerminal = context.OPENING_BRACKET();
+        final UmlScriptParser.ParticipantsContentContext participantsContentContext = context.participantsContent();
+        final TerminalNode closingBracketTerminal = context.CLOSING_BRACKET();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(singleLineStringTerminal));
+        text.append(" ");
+        text.append(this.visit(openingBracketTerminal));
+        this.currentIndentLevel++;
+        this.appendNewLinesAndIndent(text, 1);
+        text.append(this.visit(participantsContentContext));
+        this.currentIndentLevel--;
+        this.appendNewLinesAndIndent(text, 1);
+        text.append(this.visit(closingBracketTerminal));
+        return text.toString();
+    }
+
+    @Override
+    public String visitList(final UmlScriptParser.ListContext context) {
+        final TerminalNode openingBracketTerminal = context.OPENING_BRACKET();
+        final UmlScriptParser.ElementsContext elementsContext = context.elements();
+        final TerminalNode closingBracketTerminal = context.CLOSING_BRACKET();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(openingBracketTerminal));
+        this.currentIndentLevel++;
+        final String elementsText = this.visit(elementsContext);
+        if (elementsText.isEmpty()) {
+            this.currentIndentLevel--;
+            text.append(this.visit(closingBracketTerminal));
+        } else {
+            this.appendNewLinesAndIndent(text, 1);
+            text.append(elementsText);
+            this.currentIndentLevel--;
+            this.appendNewLinesAndIndent(text, 1);
+            text.append(this.visit(closingBracketTerminal));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitElements(final UmlScriptParser.ElementsContext context) {
+        final List<UmlScriptParser.ElementContext> elementContexts = context.element();
+        final List<TerminalNode> commaTerminals = context.COMMA();
+        final StringBuilder text = new StringBuilder();
+        for (int index = 0; index < elementContexts.size(); index++) {
+            final UmlScriptParser.ElementContext elementContext = elementContexts.get(index);
+            final TerminalNode commaTerminal = commaTerminals.get(index);
+            text.append(this.visit(elementContext));
+            text.append(this.visit(commaTerminal));
+            if (index < elementContexts.size() - 1) {
                 this.appendNewLinesAndIndent(text, 1);
             }
         }
@@ -177,15 +289,75 @@ public final class FormatVisitor extends UmlScriptBaseVisitor<String> {
     }
 
     @Override
-    public String visitParticipant(final UmlScriptParser.ParticipantContext context) {
+    public String visitElement(final UmlScriptParser.ElementContext context) {
+        final TerminalNode singleLineStringTerminal = context.SINGLE_LINE_STRING();
+        final TerminalNode numberTerminal = context.NUMBER();
+        final TerminalNode booleanTerminal = context.BOOLEAN();
+        final UmlScriptParser.ListContext listContext = context.list();
+        final UmlScriptParser.MapContext mapContext = context.map();
+        final StringBuilder text = new StringBuilder();
+        if (singleLineStringTerminal != null) {
+            text.append(this.visit(singleLineStringTerminal));
+        } else if (numberTerminal != null) {
+            text.append(this.visit(numberTerminal));
+        } else if (booleanTerminal != null) {
+            text.append(this.visit(booleanTerminal));
+        } else if (listContext != null) {
+            text.append(this.visit(listContext));
+        } else if (mapContext != null) {
+            text.append(this.visit(mapContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitMap(final UmlScriptParser.MapContext context) {
+        final TerminalNode openingBraceTerminal = context.OPENING_BRACE();
+        final UmlScriptParser.PairsContext pairsContext = context.pairs();
+        final TerminalNode closingBraceTerminal = context.CLOSING_BRACE();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(openingBraceTerminal));
+        this.currentIndentLevel++;
+        final String pairsText = this.visit(pairsContext);
+        if (pairsText.isEmpty()) {
+            this.currentIndentLevel--;
+            text.append(this.visit(closingBraceTerminal));
+        } else {
+            this.appendNewLinesAndIndent(text, 1);
+            text.append(pairsText);
+            this.currentIndentLevel--;
+            this.appendNewLinesAndIndent(text, 1);
+            text.append(this.visit(closingBraceTerminal));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitPairs(final UmlScriptParser.PairsContext context) {
+        final List<UmlScriptParser.PairContext> pairContexts = context.pair();
+        final List<TerminalNode> commaTerminals = context.COMMA();
+        final StringBuilder text = new StringBuilder();
+        for (int index = 0; index < pairContexts.size(); index++) {
+            final UmlScriptParser.PairContext pairContext = pairContexts.get(index);
+            text.append(this.visit(pairContext));
+            text.append(this.visit(commaTerminals.get(index)));
+            if (index < pairContexts.size() - 1) {
+                this.appendNewLinesAndIndent(text, 1);
+            }
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitPair(final UmlScriptParser.PairContext context) {
         final TerminalNode referenceNameTerminal = context.REFERENCE_NAME();
         final TerminalNode colonTerminal = context.COLON();
-        final TerminalNode singleLineString = context.SINGLE_LINE_STRING();
+        final UmlScriptParser.ElementContext elementContext = context.element();
         final StringBuilder text = new StringBuilder();
         text.append(this.visit(referenceNameTerminal));
         text.append(this.visit(colonTerminal));
         text.append(" ");
-        text.append(this.visit(singleLineString));
+        text.append(this.visit(elementContext));
         return text.toString();
     }
 

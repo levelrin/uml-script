@@ -44,11 +44,56 @@ participantsFooter
     ;
 
 participantsContent
-    : participant+
+    : participantsElement+
+    ;
+
+participantsElement
+    : participant
+    | box
     ;
 
 participant
-    : REFERENCE_NAME COLON SINGLE_LINE_STRING
+    : AT REFERENCE_NAME participantPartAfterType?
+    ;
+
+participantPartAfterType
+    : REFERENCE_NAME participantPartAfterReferenceName?
+    ;
+
+participantPartAfterReferenceName
+    : SINGLE_LINE_STRING map?
+    ;
+
+box
+    : SINGLE_LINE_STRING OPENING_BRACKET participantsContent CLOSING_BRACKET
+    ;
+
+list
+    : OPENING_BRACKET elements CLOSING_BRACKET
+    ;
+
+elements
+    : (element COMMA)*
+    ;
+
+element
+    : SINGLE_LINE_STRING
+    | NUMBER
+    | BOOLEAN
+    | list
+    | map
+    ;
+
+map
+    : OPENING_BRACE pairs CLOSING_BRACE
+    ;
+
+pairs
+    : (pair COMMA)*
+    ;
+
+pair
+    : REFERENCE_NAME COLON element
     ;
 
 METADATA: 'metadata';
@@ -58,6 +103,14 @@ DOUBLE_EQUALS: '==';
 DOUBLE_DASHES: '--';
 COLON: ':';
 BACK_QUOTE: '`';
+COMMA: ',';
+AT: '@';
+OPENING_BRACKET: '[';
+CLOSING_BRACKET: ']';
+OPENING_BRACE: '{';
+CLOSING_BRACE: '}';
+NUMBER: [0-9]+('.'[0-9]+)?;
+BOOLEAN: 'true'|'false';
 SINGLE_LINE_STRING: BACK_QUOTE ~('`'|'\r'|'\n')* BACK_QUOTE;
 REFERENCE_NAME: [a-z]([a-z0-9-]* [a-z0-9])?;
 COMMENT: '#' ~[\r\n]* -> channel(1);

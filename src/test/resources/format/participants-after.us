@@ -1,5 +1,37 @@
 == participants ==
 
-user: `Rin`
+# Declare a participant and specify type, ref-name, label, and argument.
+@type ref-name-1 `label 1` {
+  # Argument is a map (key-value pairs).
+  # Value can be either string, number, boolean, list, or map.
+  key-1: `string`,
+  key-2: 123,
+  key-3: false,
+  key-4: [
+    `string`,
+    123,
+    false,
+    [],
+  ],
+  key-5: {},
+}
+
+# Argument can be omitted.
+@type ref-name-2 `label 2`
+
+# Label can be omitted.
+@type ref-name-3
+
+# Even ref-name can be omitted.
+@type-1
+
+# Declare box
+`label` [
+  @type-2
+
+  @type-3
+
+  @type-4
+]
 
 -- participants --
