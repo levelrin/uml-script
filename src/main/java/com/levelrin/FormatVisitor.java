@@ -57,13 +57,10 @@ public final class FormatVisitor extends UmlScriptBaseVisitor<String> {
     public String visitMetadata(final UmlScriptParser.MetadataContext context) {
         final UmlScriptParser.MetadataHeaderContext metadataHeaderContext = context.metadataHeader();
         final UmlScriptParser.MetadataContentContext metadataContentContext = context.metadataContent();
-        final UmlScriptParser.MetadataFooterContext metadataFooterContext = context.metadataFooter();
         final StringBuilder text = new StringBuilder();
         text.append(this.visit(metadataHeaderContext));
         this.appendNewLinesAndIndent(text, 2);
         text.append(this.visit(metadataContentContext));
-        this.appendNewLinesAndIndent(text, 2);
-        text.append(this.visit(metadataFooterContext));
         return text.toString();
     }
 
@@ -79,21 +76,6 @@ public final class FormatVisitor extends UmlScriptBaseVisitor<String> {
         text.append(" ");
         final TerminalNode secondDoubleEqualsTerminal = doubleEqualsTerminals.get(1);
         text.append(this.visit(secondDoubleEqualsTerminal));
-        return text.toString();
-    }
-
-    @Override
-    public String visitMetadataFooter(final UmlScriptParser.MetadataFooterContext context) {
-        final List<TerminalNode> doubleDashesTerminals = context.DOUBLE_DASHES();
-        final TerminalNode metadataTerminal = context.METADATA();
-        final StringBuilder text = new StringBuilder();
-        final TerminalNode firstDoubleDashesTerminal = doubleDashesTerminals.get(0);
-        text.append(this.visit(firstDoubleDashesTerminal));
-        text.append(" ");
-        text.append(this.visit(metadataTerminal));
-        text.append(" ");
-        final TerminalNode secondDoubleDashesTerminal = doubleDashesTerminals.get(1);
-        text.append(this.visit(secondDoubleDashesTerminal));
         return text.toString();
     }
 
@@ -122,13 +104,10 @@ public final class FormatVisitor extends UmlScriptBaseVisitor<String> {
     public String visitParticipants(final UmlScriptParser.ParticipantsContext context) {
         final UmlScriptParser.ParticipantsHeaderContext participantsHeaderContext = context.participantsHeader();
         final UmlScriptParser.ParticipantsContentContext participantsContentContext = context.participantsContent();
-        final UmlScriptParser.ParticipantsFooterContext participantsFooterContext = context.participantsFooter();
         final StringBuilder text = new StringBuilder();
         text.append(this.visit(participantsHeaderContext));
         this.appendNewLinesAndIndent(text, 2);
         text.append(this.visit(participantsContentContext));
-        this.appendNewLinesAndIndent(text, 2);
-        text.append(this.visit(participantsFooterContext));
         return text.toString();
     }
 
@@ -144,21 +123,6 @@ public final class FormatVisitor extends UmlScriptBaseVisitor<String> {
         text.append(" ");
         final TerminalNode secondDoubleEqualsTerminal = doubleEqualsTerminals.get(1);
         text.append(this.visit(secondDoubleEqualsTerminal));
-        return text.toString();
-    }
-
-    @Override
-    public String visitParticipantsFooter(final UmlScriptParser.ParticipantsFooterContext context) {
-        final List<TerminalNode> doubleDashesTerminals = context.DOUBLE_DASHES();
-        final TerminalNode participantsTerminal = context.PARTICIPANTS();
-        final StringBuilder text = new StringBuilder();
-        final TerminalNode firstDoubleDashesTerminal = doubleDashesTerminals.get(0);
-        text.append(this.visit(firstDoubleDashesTerminal));
-        text.append(" ");
-        text.append(this.visit(participantsTerminal));
-        text.append(" ");
-        final TerminalNode secondDoubleDashesTerminal = doubleDashesTerminals.get(1);
-        text.append(this.visit(secondDoubleDashesTerminal));
         return text.toString();
     }
 

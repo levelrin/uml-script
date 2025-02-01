@@ -12,15 +12,11 @@ section
     ;
 
 metadata
-    : metadataHeader metadataContent metadataFooter
+    : metadataHeader metadataContent
     ;
 
 metadataHeader
     : DOUBLE_EQUALS METADATA DOUBLE_EQUALS
-    ;
-
-metadataFooter
-    : DOUBLE_DASHES METADATA DOUBLE_DASHES
     ;
 
 metadataContent
@@ -32,15 +28,11 @@ title
     ;
 
 participants
-    : participantsHeader participantsContent participantsFooter
+    : participantsHeader participantsContent
     ;
 
 participantsHeader
     : DOUBLE_EQUALS PARTICIPANTS DOUBLE_EQUALS
-    ;
-
-participantsFooter
-    : DOUBLE_DASHES PARTICIPANTS DOUBLE_DASHES
     ;
 
 participantsContent
@@ -100,7 +92,6 @@ METADATA: 'metadata';
 PARTICIPANTS: 'participants';
 TITLE: 'title';
 DOUBLE_EQUALS: '==';
-DOUBLE_DASHES: '--';
 COLON: ':';
 BACK_QUOTE: '`';
 COMMA: ',';
